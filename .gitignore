@@ -1,0 +1,16 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/yworld
+yworld.so
+yworld.dylib
+yworld.dll
+yworld.a
+yworld.lib
+yworld-test-*
+*.exe
+*.pdb
+*.o
+*.obj
+*.lst

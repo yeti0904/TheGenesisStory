@@ -1,0 +1,19 @@
+{
+	"authors": [
+		"yeti0904"
+	],
+	"copyright": "Copyright © 2023, yeti0904",
+	"description": "A minimal D application.",
+	"license": "GPL-3.0-or-later",
+	"name": "the_genesis_story",
+
+	"dependencies": {
+		"bindbc-sdl": ">1.2.4"
+	},
+	"versions": [
+		"SDL_TTF"
+	],
+	"dflags": [
+		"-J."
+	]
+}
