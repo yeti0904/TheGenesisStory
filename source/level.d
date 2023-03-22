@@ -54,14 +54,35 @@ static const string[] suffixes = [
 
 enum TileType {
 	Empty,
-	Grass,
+	Grass1,
+	Grass2,
+	Grass3,
 	Water,
-	Flower,
-	House
+	House,
+	Church
+}
+
+struct Person {
+	string[] name;
+	bool     theist;
+}
+
+struct House {
+	Town*     parent;
+	Person*[] residents;
+}
+
+struct Church {
+	Town*   parent;
+	Person* priest;
 }
 
 struct Tile {
 	TileType type;
+
+	this(TileType ptype) {
+		type = ptype;
+	}
 }
 
 struct Town {
@@ -151,6 +172,12 @@ class Level {
 				}
 			}
 
+			foreach (ref town ; towns) {
+				if (town.pos.CastTo!long().DistanceTo(townPos.CastTo!long()) <= 25) {
+					goto createTownPos;
+				}
+			}
+
 			string name = (
 				names[uniform(0, names.length)] ~
 				suffixes[uniform(0, suffixes.length)]
@@ -188,13 +215,17 @@ class Level {
 							break;
 						}
 					
-						switch (uniform(1, 20)) {
-							case 5: {
-								tiles[y][x] = Tile(TileType.Grass);
+						switch (uniform!"[]"(1, 20)) {
+							case 1: {
+								tiles[y][x] = Tile(TileType.Grass1);
 								break;
 							}
-							case 10: {
-								tiles[y][x] = Tile(TileType.Flower);
+							case 2: {
+								tiles[y][x] = Tile(TileType.Grass2);
+								break;
+							}
+							case 3: {
+								tiles[y][x] = Tile(TileType.Grass3);
 								break;
 							}
 							default: break;
@@ -207,7 +238,16 @@ class Level {
 						size_t distance = pos.DistanceTo(town.pos.CastTo!long());
 
 						if (distance <= town.radius) {
-							tiles[y][x] = Tile(TileType.House);
+							switch (uniform(0, 30)) {
+								case 0: {
+									tiles[y][x] = Tile(TileType.Church);
+									break;
+								}
+								default: {
+									tiles[y][x] = Tile(TileType.House);
+									break;
+								}
+							}
 							break;
 						}
 					}
@@ -234,8 +274,18 @@ class Level {
 
 				switch (tile.type) {
 					case TileType.Empty: break;
-					case TileType.Grass: {
+					case TileType.Grass1: {
 						cell.ch      = '\'';
+						cell.attr.fg = Colour.BrightGreen;
+						break;
+					}
+					case TileType.Grass2: {
+						cell.ch      = '"';
+						cell.attr.fg = Colour.Green;
+						break;
+					}
+					case TileType.Grass3: {
+						cell.ch      = '.';
 						cell.attr.fg = Colour.Green;
 						break;
 					}
@@ -245,14 +295,14 @@ class Level {
 						cell.attr.bg = Colour.Blue;
 						break;
 					}
-					case TileType.Flower: {
-						cell.ch      = '"';
-						cell.attr.fg = Colour.Green;
-						break;
-					}
 					case TileType.House: {
 						cell.ch      = '#';
 						cell.attr.fg = Colour.BrightYellow;
+						break;
+					}
+					case TileType.Church: {
+						cell.ch      = '+';
+						cell.attr.fg = Colour.BrightCyan;
 						break;
 					}
 					default: assert(0);

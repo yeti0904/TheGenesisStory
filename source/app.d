@@ -1,4 +1,7 @@
 import std.stdio;
+import std.algorithm;
+import std.datetime.stopwatch;
+import core.thread;
 import bindbc.sdl;
 import game;
 import text;
@@ -17,6 +20,7 @@ class App {
 	size_t     ticks;
 	TextScreen screen;
 	AppState   state;
+	float      fps;
 
 	// screens
 	TitleScreen titleScreen;
@@ -44,7 +48,8 @@ class App {
 	}
 
 	void Update() {
-		auto game = Game.Instance();
+		auto stopwatch = StopWatch(AutoStart.yes);
+		auto game      = Game.Instance();
 	
 		++ ticks;
 	
@@ -57,6 +62,7 @@ class App {
 
 					if (key == SDL_SCANCODE_F12) {
 						writeln("DEBUG INFO");
+						writefln("FPS: %g", fps);
 						writefln("Game camera: %s", game.camera);
 					}
 					
@@ -99,6 +105,13 @@ class App {
 		screen.Render();
 
 		SDL_RenderPresent(VideoComponents.Instance().renderer);
+
+		stopwatch.stop();
+
+		float deltaTime = stopwatch.peek.total!"msecs"();
+		fps = 1000.0 / deltaTime;
+
+		Thread.sleep(dur!"msecs"(max(cast(long) deltaTime - (1000 / 60), 0)));
 	}
 }
 

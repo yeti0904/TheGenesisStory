@@ -66,7 +66,7 @@ class VideoComponents {
 		}
 
 		renderer = SDL_CreateRenderer(
-			window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
+			window, -1, SDL_RENDERER_ACCELERATED
 		);
 		if (renderer is null) {
 			stderr.writefln("Failed to create renderer: %s", fromStringz(SDL_GetError()));
