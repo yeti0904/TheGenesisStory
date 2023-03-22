@@ -1,4 +1,5 @@
 import std.math;
+import std.format;
 
 struct Vec2(T) {
 	T x, y;
@@ -29,11 +30,22 @@ struct Vec2(T) {
 		);
 	}
 
+	Vec2!T2 CastTo(T2)() {
+		return Vec2!T2(
+			cast(T2) x,
+			cast(T2) y
+		);
+	}
+
 	bool Equals(Vec2!T right) {
 		return (
 			(x == right.x) &&
 			(y == right.y)
 		);
+	}
+
+	string toString() {
+		return format("(%s, %s)", x, y);
 	}
 }
 

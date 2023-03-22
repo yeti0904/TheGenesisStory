@@ -3,7 +3,57 @@ import types;
 import textScreen;
 import app;
 
+static const string[] names = [
+	"corn",
+	"old",
+	"marple",
+	"stock",
+	"knuts",
+	"barns",
+	"bel",
+	"barl",
+	"pockling",
+	"tock",
+	"harro",
+	"drif",
+	"tad",
+	"man",
+	"east",
+	"west",
+	"north",
+	"south",
+	"rose",
+	"briggs",
+	"long",
+	"lud",
+	"king",
+	"rugby",
+	"lamp",
+	"lan"
+];
+
+static const string[] suffixes = [
+	"bury",
+	"borough",
+	"brough",
+	"burgh",
+	"by",
+	"caster",
+	"cester",
+	"ford",
+	"ham",
+	"mouth",
+	"stead",
+	"ton",
+	"worth",
+	"port",
+	"gate",
+	"field",
+	"shire",
+];
+
 enum TileType {
+	Empty,
 	Grass,
 	Water,
 	Flower,
@@ -14,8 +64,20 @@ struct Tile {
 	TileType type;
 }
 
+struct Town {
+	Vec2!size_t pos;
+	string      name;
+	size_t      radius;
+}
+
+struct Lake {
+	Vec2!size_t pos;
+}
+
 class Level {
 	Tile[][] tiles;
+	Town[]   towns;
+	Lake[]   lakes;
 
 	this() {
 		
@@ -23,6 +85,10 @@ class Level {
 
 	void SetSize(Vec2!size_t size) {
 		tiles = new Tile[][](size.y, size.x);
+	}
+
+	Vec2!size_t GetSize() {
+		return Vec2!size_t(tiles[0].length, tiles.length);
 	}
 
 	Vec2!size_t[] GetSurroundingTiles(Vec2!size_t pos) {
@@ -58,21 +124,47 @@ class Level {
 	}
 
 	void Generate() {
-		Vec2!long[] waterPositions;
-
 		for (size_t i = 0; i < 5; ++i) {
-			waterPositions ~= Vec2!long(
+			lakes ~= Lake(
+				Vec2!size_t(
+					uniform(0, tiles[0].length),
+					uniform(0, tiles.length)
+				)
+			);
+		}
+
+		for (size_t i = 0; i < 8; ++ i) {
+			Vec2!size_t townPos;
+
+			createTownPos:
+			townPos = Vec2!size_t(
 				uniform(0, tiles[0].length),
 				uniform(0, tiles.length)
 			);
+
+			foreach (ref lake ; lakes) {
+				auto lakePos     = lake.pos.CastTo!long();
+				auto townPosLong = townPos.CastTo!long();
+
+				if (lakePos.DistanceTo(townPosLong) <= 70) {
+					goto createTownPos;
+				}
+			}
+
+			string name = (
+				names[uniform(0, names.length)] ~
+				suffixes[uniform(0, suffixes.length)]
+			);
+			
+			towns ~= Town(townPos, name, uniform(10, 15));
 		}
 		
 		foreach (y, ref line ; tiles) {
 			foreach (x, ref tile ; line) {
 				Vec2!long pos = Vec2!long(x, y);
 
-				foreach (ref water ; waterPositions) {
-					size_t distance = pos.DistanceTo(water);
+				foreach (ref lake ; lakes) {
+					size_t distance = pos.DistanceTo(lake.pos.CastTo!long());
 				
 					if (distance <= uniform(5, 40)) {
 						tiles[y][x] = Tile(TileType.Water);
@@ -96,11 +188,27 @@ class Level {
 							break;
 						}
 					
-						if (uniform(0, 100) == 15) {
-							tiles[y][x] = Tile(TileType.Flower);
+						switch (uniform(1, 20)) {
+							case 5: {
+								tiles[y][x] = Tile(TileType.Grass);
+								break;
+							}
+							case 10: {
+								tiles[y][x] = Tile(TileType.Flower);
+								break;
+							}
+							default: break;
 						}
-						else {
-							tiles[y][x] = Tile(TileType.Grass);
+					}
+				}
+
+				if (uniform(0, 5) == 1) {
+					foreach (ref town ; towns) {
+						size_t distance = pos.DistanceTo(town.pos.CastTo!long());
+
+						if (distance <= town.radius) {
+							tiles[y][x] = Tile(TileType.House);
+							break;
 						}
 					}
 				}
@@ -125,6 +233,7 @@ class Level {
 				auto tile = tiles[y][x];
 
 				switch (tile.type) {
+					case TileType.Empty: break;
 					case TileType.Grass: {
 						cell.ch      = '\'';
 						cell.attr.fg = Colour.Green;
@@ -137,13 +246,13 @@ class Level {
 						break;
 					}
 					case TileType.Flower: {
-						cell.ch      = '#';
+						cell.ch      = '"';
 						cell.attr.fg = Colour.Green;
 						break;
 					}
 					case TileType.House: {
 						cell.ch      = '#';
-						cell.attr.fg = Colour.Yellow;
+						cell.attr.fg = Colour.BrightYellow;
 						break;
 					}
 					default: assert(0);

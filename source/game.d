@@ -1,13 +1,15 @@
+import std.format;
 import bindbc.sdl;
 import app;
 import level;
 import types;
 import textScreen;
+import townViewer;
 
 enum Focus {
 	World,
 	TopMenu,
-	Law
+	Towns
 }
 
 struct TopMenu {
@@ -20,12 +22,15 @@ class Game {
 	Vec2!long camera;
 	Focus     focus;
 
-	TopMenu topMenu;
+	TopMenu    topMenu;
+	TownViewer townViewer;
 
 	this() {
 		topMenu.buttons = [
-			"Law"
+			"Towns"
 		];
+
+		townViewer = new TownViewer();
 	}
 
 	static Game Instance() {
@@ -43,6 +48,8 @@ class Game {
 		level.SetSize(Vec2!size_t(250, 250));
 
 		level.Generate();
+
+		townViewer.LoadTowns();
 	}
 
 	void HandleKeyPress(SDL_Scancode key) {
@@ -66,8 +73,8 @@ class Game {
 				switch (key) {
 					case SDL_SCANCODE_SPACE: {
 						switch (topMenu.buttons[topMenu.selected]) {
-							case "Law": {
-								focus = Focus.Law;
+							case "Towns": {
+								focus = Focus.Towns;
 								break;
 							}
 							default: assert(0);
@@ -78,7 +85,8 @@ class Game {
 				}
 				break;
 			}
-			case Focus.Law: {
+			case Focus.Towns: {
+				townViewer.HandleKeyPress(key);
 				break;
 			}
 			default: assert(0);
@@ -147,6 +155,19 @@ class Game {
 
 					pos += button.length + 1;
 				}
+				break;
+			}
+			case Focus.Towns: {
+				screen.WriteString(
+					Vec2!size_t(1, 1),
+					format(
+						"Looking at town %s at %s",
+						townViewer.towns[townViewer.selected].name,
+						townViewer.towns[townViewer.selected].pos
+					)
+				);
+
+				townViewer.Render();
 				break;
 			}
 			default: assert(0);
