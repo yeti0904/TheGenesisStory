@@ -75,6 +75,7 @@ class Game {
 						switch (topMenu.buttons[topMenu.selected]) {
 							case "Towns": {
 								focus = Focus.Towns;
+								townViewer.ViewOnTown();
 								break;
 							}
 							default: assert(0);
