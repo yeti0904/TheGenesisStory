@@ -1,3 +1,4 @@
+import std.algorithm;
 import bindbc.sdl;
 import app;
 import game;
@@ -29,6 +30,9 @@ class TownViewer {
 
 		game.camera.x = town.pos.CastTo!long().x - (screen.GetSize().x / 2);
 		game.camera.y = town.pos.CastTo!long().y - (screen.GetSize().y / 2);
+
+		game.camera.x = max(0, game.camera.x);
+		game.camera.y = max(0, game.camera.y);
 	}
 
 	void HandleKeyPress(SDL_Scancode key) {
