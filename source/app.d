@@ -54,6 +54,12 @@ class App {
 			switch (e.type) {
 				case SDL_KEYDOWN: {
 					auto key = e.key.keysym.scancode;
+
+					if (key == SDL_SCANCODE_F12) {
+						writeln("DEBUG INFO");
+						writefln("Game camera: %s", game.camera);
+					}
+					
 					switch (state) {
 						case AppState.TitleScreen: {
 							titleScreen.HandleKeyPress(key);
