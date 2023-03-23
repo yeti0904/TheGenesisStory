@@ -148,7 +148,8 @@ class TitleScreen {
 			"WASD - Move camera",
 			"Arrow keys - move cursor in menu",
 			"Space - click buttons",
-			"Escape - open action menu or return to game"
+			"Escape - open action menu or return to game",
+			"Q - exit to title screen"
 		];
 
 		screen.WriteStringCentered(

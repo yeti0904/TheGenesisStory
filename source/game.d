@@ -1,4 +1,5 @@
 import std.format;
+import std.string;
 import bindbc.sdl;
 import app;
 import level;
@@ -13,7 +14,8 @@ enum Focus {
 	TopMenu,
 	Towns,
 	WorldInfo,
-	People
+	People,
+	QuitConfirm
 }
 
 struct TopMenu {
@@ -41,6 +43,8 @@ class Game {
 		townViewer   = new TownViewer();
 		worldViewer  = new WorldViewer();
 		personViewer = new PersonViewer();
+
+		focus = Focus.World;
 	}
 
 	static Game Instance() {
@@ -73,6 +77,10 @@ class Game {
 					focus = Focus.World;
 				}
 				return;
+			}
+			case SDL_SCANCODE_Q: {
+				focus = Focus.QuitConfirm;
+				break;
 			}
 			default: break;
 		}
@@ -127,6 +135,22 @@ class Game {
 			}
 			case Focus.People: {
 				personViewer.HandleKeyPress(key);
+				break;
+			}
+			case Focus.QuitConfirm: {
+				switch (key) {
+					case SDL_SCANCODE_Y: {
+						auto app = App.Instance();
+
+						app.state = AppState.TitleScreen;
+						break;
+					}
+					case SDL_SCANCODE_N: {
+						focus = Focus.World;
+						break;
+					}
+					default: break;
+				}
 				break;
 			}
 			default: assert(0);
@@ -220,6 +244,20 @@ class Game {
 				screen.WriteString(Vec2!size_t(1, 1), "Viewing population");
 			
 				personViewer.Render();
+				break;
+			}
+			case Focus.QuitConfirm: {
+				Rect!size_t box = Rect!size_t(0, 0, 30, 5);
+
+				box.x = (screen.GetSize().x / 2) - (box.w / 2);
+				box.y = (screen.GetSize().y / 2) - (box.h / 2);
+
+				screen.FillRect(box, ' ');
+				screen.DrawBox(box);
+
+				screen.WriteString(
+					Vec2!size_t(box.x + 1, box.y + 1), "Really quit? (Y/N)"
+				);
 				break;
 			}
 			default: assert(0);
