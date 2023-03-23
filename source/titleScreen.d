@@ -143,5 +143,19 @@ class TitleScreen {
 				screen.WriteStringCentered(buttonStart + i, text, Colour.BrightWhite);
 			}
 		}
+
+		string[] controlsLines = [
+			"WASD - Move camera",
+			"Arrow keys - move cursor in menu",
+			"Space - click buttons",
+			"Escape - open action menu or return to game"
+		];
+
+		screen.WriteStringCentered(
+			screenSize.y - controlsLines.length - 6, "Controls", Colour.BrightWhite
+		);
+		screen.WriteStringLinesCentered(
+			screenSize.y - controlsLines.length - 5, controlsLines
+		);
 	}
 }
