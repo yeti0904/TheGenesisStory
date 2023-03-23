@@ -183,7 +183,9 @@ class TextScreen {
 		}
 	}
 
-	void FillRect(Rect!size_t rect, char ch, ubyte fg, ubyte bg) {
+	void FillRect(
+		Rect!size_t rect, char ch, ubyte fg = Colour.White, ubyte bg = Colour.Black
+	) {
 		for (size_t i = rect.y; i < rect.y + rect.h; ++ i) {
 			for (size_t j = rect.x; j < rect.x + rect.w; ++ j) {
 				cells[i][j] = Cell(ch, Attributes(fg, bg));
@@ -191,7 +193,9 @@ class TextScreen {
 		}
 	}
 
-	void DrawBox(Rect!size_t rect, ubyte fg, ubyte bg) {
+	void DrawBox(
+		Rect!size_t rect, ubyte fg = Colour.White, ubyte bg = Colour.Black
+	) {
 		for (size_t i = rect.y + 1; i < rect.y + rect.h - 1; ++ i) {
 			Cell cell = Cell(0xB3, Attributes(fg, bg));
 			

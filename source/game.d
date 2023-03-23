@@ -6,12 +6,14 @@ import types;
 import textScreen;
 import townViewer;
 import worldViewer;
+import personViewer;
 
 enum Focus {
 	World,
 	TopMenu,
 	Towns,
-	WorldInfo
+	WorldInfo,
+	People
 }
 
 struct TopMenu {
@@ -24,18 +26,21 @@ class Game {
 	Vec2!long camera;
 	Focus     focus;
 
-	TopMenu     topMenu;
-	TownViewer  townViewer;
-	WorldViewer worldViewer;
+	TopMenu      topMenu;
+	TownViewer   townViewer;
+	WorldViewer  worldViewer;
+	PersonViewer personViewer;
 
 	this() {
 		topMenu.buttons = [
 			"World",
-			"Towns"
+			"Towns",
+			"People"
 		];
 
-		townViewer  = new TownViewer();
-		worldViewer = new WorldViewer();
+		townViewer   = new TownViewer();
+		worldViewer  = new WorldViewer();
+		personViewer = new PersonViewer();
 	}
 
 	static Game Instance() {
@@ -100,6 +105,10 @@ class Game {
 								townViewer.ViewOnTown();
 								break;
 							}
+							case "People": {
+								focus = Focus.People;
+								break;
+							}
 							default: assert(0);
 						}
 						break;
@@ -114,6 +123,10 @@ class Game {
 			}
 			case Focus.WorldInfo: {
 				worldViewer.HandleKeyPress(key);
+				break;
+			}
+			case Focus.People: {
+				personViewer.HandleKeyPress(key);
 				break;
 			}
 			default: assert(0);
@@ -201,6 +214,12 @@ class Game {
 				screen.WriteString(Vec2!size_t(1, 1), "Viewing world information");
 
 				worldViewer.Render();
+				break;
+			}
+			case Focus.People: {
+				screen.WriteString(Vec2!size_t(1, 1), "Viewing population");
+			
+				personViewer.Render();
 				break;
 			}
 			default: assert(0);
