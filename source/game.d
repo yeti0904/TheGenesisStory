@@ -5,11 +5,13 @@ import level;
 import types;
 import textScreen;
 import townViewer;
+import worldViewer;
 
 enum Focus {
 	World,
 	TopMenu,
-	Towns
+	Towns,
+	WorldInfo
 }
 
 struct TopMenu {
@@ -22,15 +24,18 @@ class Game {
 	Vec2!long camera;
 	Focus     focus;
 
-	TopMenu    topMenu;
-	TownViewer townViewer;
+	TopMenu     topMenu;
+	TownViewer  townViewer;
+	WorldViewer worldViewer;
 
 	this() {
 		topMenu.buttons = [
+			"World",
 			"Towns"
 		];
 
-		townViewer = new TownViewer();
+		townViewer  = new TownViewer();
+		worldViewer = new WorldViewer();
 	}
 
 	static Game Instance() {
@@ -43,11 +48,11 @@ class Game {
 		return game;
 	}
 
-	void GenerateWorld() {
+	void GenerateWorld(int believerChance) {
 		level = new Level();
 		level.SetSize(Vec2!size_t(250, 250));
 
-		level.Generate();
+		level.Generate(believerChance);
 
 		townViewer.LoadTowns();
 	}
@@ -71,8 +76,25 @@ class Game {
 			case Focus.World: break;
 			case Focus.TopMenu: {
 				switch (key) {
+					case SDL_SCANCODE_RIGHT: {
+						if (topMenu.selected < topMenu.buttons.length - 1) {
+							++ topMenu.selected;
+						}
+						break;
+					}
+					case SDL_SCANCODE_LEFT: {
+						if (topMenu.selected > 0) {
+							-- topMenu.selected;
+						}
+						break;
+					}
 					case SDL_SCANCODE_SPACE: {
 						switch (topMenu.buttons[topMenu.selected]) {
+							case "World": {
+								focus = Focus.WorldInfo;
+								worldViewer.CreateData();
+								break;
+							}
 							case "Towns": {
 								focus = Focus.Towns;
 								townViewer.ViewOnTown();
@@ -88,6 +110,10 @@ class Game {
 			}
 			case Focus.Towns: {
 				townViewer.HandleKeyPress(key);
+				break;
+			}
+			case Focus.WorldInfo: {
+				worldViewer.HandleKeyPress(key);
 				break;
 			}
 			default: assert(0);
@@ -123,7 +149,7 @@ class Game {
 		auto screen     = App.Instance().screen;
 		auto screenSize = screen.GetSize();
 
-		screen.Clear(Colour.Black);
+		screen.Clear(' ');
 	
 		level.Render(camera);
 
@@ -169,6 +195,12 @@ class Game {
 				);
 
 				townViewer.Render();
+				break;
+			}
+			case Focus.WorldInfo: {
+				screen.WriteString(Vec2!size_t(1, 1), "Viewing world information");
+
+				worldViewer.Render();
 				break;
 			}
 			default: assert(0);

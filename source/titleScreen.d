@@ -54,19 +54,8 @@ class TitleScreen {
 					case "Continue": break;
 					case "Create World": {
 						auto app    = App.Instance();
-						auto game   = Game.Instance();
-						auto screen = app.screen;
-
-						screen.Clear(Colour.Black);
-						screen.WriteStringCentered(
-							screen.GetSize().y / 2, "Generating world"
-						);
-						screen.Render();
-
-						SDL_RenderPresent(VideoComponents.Instance().renderer);
-
-						app.state = AppState.InGame;
-						game.GenerateWorld();
+						
+						app.state = AppState.WorldOptions;
 						break;
 					}
 					case "Exit": {
@@ -84,7 +73,7 @@ class TitleScreen {
 		auto screen     = App.Instance().screen;
 		auto screenSize = screen.GetSize();
 
-		screen.Clear(Colour.Black);
+		screen.Clear(' ');
 
 		screen.HorizontalLine(
 			Vec2!size_t(0, 0), screenSize.x, 0xDB, Colour.Grey

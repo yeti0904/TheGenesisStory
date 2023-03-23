@@ -108,8 +108,6 @@ class TextComponents {
 		SDL_QueryTexture(texture, null, null, &textRect.w, &textRect.h);
 
 		SDL_RenderCopy(video.renderer, texture, null, &textRect);
-
-		SDL_SetTextureColorMod(texture, 255, 255, 255);
 	}
 
 	Vec2!int GetTextSize(string text) {

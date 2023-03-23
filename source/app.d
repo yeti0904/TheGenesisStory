@@ -9,9 +9,11 @@ import types;
 import video;
 import textScreen;
 import titleScreen;
+import worldOptions;
 
 enum AppState {
 	TitleScreen,
+	WorldOptions,
 	InGame
 }
 
@@ -23,14 +25,16 @@ class App {
 	float      fps;
 
 	// screens
-	TitleScreen titleScreen;
+	TitleScreen      titleScreen;
+	WorldOptionsMenu worldOptions;
 
 	this() {
 		VideoComponents.Instance().Init("The Genesis Story");
 		TextComponents.Instance();
 		auto game = Game.Instance();
 
-		titleScreen = new TitleScreen();
+		titleScreen  = new TitleScreen();
+		worldOptions = new WorldOptionsMenu();
 
 		screen = new TextScreen();
 
@@ -71,6 +75,10 @@ class App {
 							titleScreen.HandleKeyPress(key);
 							break;
 						}
+						case AppState.WorldOptions: {
+							worldOptions.HandleKeyPress(key);
+							break;
+						}
 						case AppState.InGame: {
 							game.HandleKeyPress(key);
 							break;
@@ -94,6 +102,10 @@ class App {
 				titleScreen.Render();
 				break;
 			}
+			case AppState.WorldOptions: {
+				worldOptions.Render();
+				break;
+			}
 			case AppState.InGame: {
 				game.HandleInput(keyState);
 				game.Render();
@@ -108,10 +120,8 @@ class App {
 
 		stopwatch.stop();
 
-		float deltaTime = stopwatch.peek.total!"msecs"();
-		fps = 1000.0 / deltaTime;
-
-		Thread.sleep(dur!"msecs"(max(cast(long) deltaTime - (1000 / 60), 0)));
+		int deltaTime = cast(int) stopwatch.peek.total!"msecs"();
+		fps = 1000 / deltaTime;
 	}
 }
 

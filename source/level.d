@@ -4,52 +4,33 @@ import textScreen;
 import app;
 
 static const string[] names = [
-	"corn",
-	"old",
-	"marple",
-	"stock",
-	"knuts",
-	"barns",
-	"bel",
-	"barl",
-	"pockling",
-	"tock",
-	"harro",
-	"drif",
-	"tad",
-	"man",
-	"east",
-	"west",
-	"north",
-	"south",
-	"rose",
-	"briggs",
-	"long",
-	"lud",
-	"king",
-	"rugby",
-	"lamp",
-	"lan"
+	"corn", "old", "marple", "stock", "knuts", "barns", "bel", "barl", "pockling",
+	"tock", "harro", "drif", "tad", "man", "east", "west", "north", "south", "rose",
+	"briggs", "long", "lud", "king", "rugby", "lamp", "lan"
 ];
 
 static const string[] suffixes = [
-	"bury",
-	"borough",
-	"brough",
-	"burgh",
-	"by",
-	"caster",
-	"cester",
-	"ford",
-	"ham",
-	"mouth",
-	"stead",
-	"ton",
-	"worth",
-	"port",
-	"gate",
-	"field",
-	"shire",
+	"bury", "borough", "brough", "burgh", "by", "caster", "cester", "ford", "ham",
+	"mouth", "stead", "ton", "worth", "port", "gate", "field", "shire",
+];
+
+static const string[] firstNames = [
+	"Ann", "Bea", "Beth", "Blaire","Claire", "Dawn", "Dee", "Elle", "Eve", "Faye",
+	"Gail", "Grace", "Gwen", "Jane","Jean", "Joy", "Kate ","Kim ","Liv ","Madge ",
+	"Paige ","Pearl ","Rose", "Ruth","Sue", "Tess", "Beau", "Blake", "Brock", "Cade",
+	"Cale", "Chad", "Chase", "Clark", "Cole", "Drake", "Grant", "Heath", "Jack",
+	"Jake", "Kent", "Kurt", "Luke", "Max", "Neil", "Rhett", "Ross", "Todd", "Trent",
+	"Troy", "Vince"
+];
+
+static const string[] lastNames = [
+	"Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis",
+	"Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson",
+	"Thomas", "Taylor", "Moore", "Jackson", "Martin", "Lee", "Perez", "Thompson",
+	"White", "Harris", "Sanchez", "Clark", "Ramirez", "Lewis", "Robinson", "Walker",
+	"Young", "Allen", "King", "Wright", "Scott", "Torres", "Nguyen", "Hill", "Flores",
+	"Green", "Adams", "Nelson", "Baker", "Hall", "Rivera", "Campbell", "Mitchell",
+	"Carter", "Roberts"
 ];
 
 enum TileType {
@@ -62,9 +43,36 @@ enum TileType {
 	Church
 }
 
+enum DefaultReligion {
+	Atheist  = 0,
+	Believer = 1
+}
+
+enum PersonRole {
+	Normal,
+	Priest,
+	Prophet
+}
+
 struct Person {
-	string[] name;
-	bool     theist;
+	string[]   name;
+	int        religion;
+	PersonRole role;
+	Tile*      home;
+
+	static Person Random(int preligion, PersonRole prole, Tile* phome) {
+		Person ret;
+	
+		ret.name = [
+			firstNames[uniform(0, firstNames.length)],
+			lastNames[uniform(0, lastNames.length)]
+		];
+		ret.religion = preligion;
+		ret.role     = prole;
+		ret.home     = phome;
+
+		return ret;
+	}
 }
 
 struct House {
@@ -75,13 +83,40 @@ struct House {
 struct Church {
 	Town*   parent;
 	Person* priest;
+	int     religion;
+}
+
+union TileMeta {
+	House  house;
+	Church church;
 }
 
 struct Tile {
 	TileType type;
+	TileMeta meta;
 
 	this(TileType ptype) {
 		type = ptype;
+	}
+
+	static Tile House(Town* parent, Person*[] residents) {
+		static Tile ret;
+
+		ret.type                 = TileType.House;
+		ret.meta.house.parent    = parent;
+		ret.meta.house.residents = residents;
+
+		return ret;
+	}
+
+	static Tile Church(Town* parent, Person* priest) {
+		static Tile ret;
+
+		ret.type               = TileType.Church;
+		ret.meta.church.parent = parent;
+		ret.meta.church.priest = priest;
+
+		return ret;
 	}
 }
 
@@ -89,6 +124,8 @@ struct Town {
 	Vec2!size_t pos;
 	string      name;
 	size_t      radius;
+	size_t      houses;
+	size_t      churches;
 }
 
 struct Lake {
@@ -99,6 +136,7 @@ class Level {
 	Tile[][] tiles;
 	Town[]   towns;
 	Lake[]   lakes;
+	Person[] people;
 
 	this() {
 		
@@ -144,7 +182,7 @@ class Level {
 		return ret;
 	}
 
-	void Generate() {
+	void Generate(int believerChance) {
 		for (size_t i = 0; i < 5; ++i) {
 			lakes ~= Lake(
 				Vec2!size_t(
@@ -240,11 +278,49 @@ class Level {
 						if (distance <= town.radius) {
 							switch (uniform(0, 30)) {
 								case 0: {
-									tiles[y][x] = Tile(TileType.Church);
+									tiles[y][x] = Tile.Church(
+										&town, null
+									);
+									++ town.churches;
+
+									auto church = &tiles[y][x].meta.church;
+
+									people ~= Person.Random(
+										DefaultReligion.Believer,
+										PersonRole.Priest,
+										&tiles[y][x]
+									);
+									
+									church.parent   = &town;
+									church.priest   = &people[$ - 1];
+									church.religion = DefaultReligion.Believer;
 									break;
 								}
 								default: {
-									tiles[y][x] = Tile(TileType.House);
+									tiles[y][x] = Tile.House(
+										&town, []
+									);
+									++ town.houses;
+
+									auto house   = &tiles[y][x].meta.house;
+									house.parent = &town;
+
+									for (size_t i = 0; i < uniform(0, 4); ++ i) {
+										int chance   = uniform!"[]"(0, 100);
+										int religion = DefaultReligion.Atheist;
+
+										if (chance <= believerChance) {
+											religion = DefaultReligion.Believer;
+										}
+									
+										people ~= Person.Random(
+											religion,
+											PersonRole.Normal,
+											&tiles[y][x]
+										);
+
+										house.residents ~= &people[$ - 1];
+									}
 									break;
 								}
 							}

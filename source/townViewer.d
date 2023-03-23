@@ -1,3 +1,4 @@
+import std.format;
 import std.algorithm;
 import bindbc.sdl;
 import app;
@@ -61,9 +62,11 @@ class TownViewer {
 	}
 
 	void Render() {
-		auto screen = App.Instance().screen;
+		auto screen     = App.Instance().screen;
+		auto screenSize = screen.GetSize();
+		auto thisTown   = towns[selected];
 		
-		Rect!size_t townsList = Rect!size_t(1, 5, 20, 10);
+		Rect!size_t townsList = Rect!size_t(1, 4, 20, 10);
 		screen.FillRect(townsList, ' ', Colour.White, Colour.Black);
 		screen.DrawBox(townsList, Colour.White, Colour.Black);
 
@@ -74,7 +77,22 @@ class TownViewer {
 				text = "> " ~ text;
 			}
 
-			screen.WriteString(Vec2!size_t(2, 6 + i), text);
+			screen.WriteString(Vec2!size_t(2, 5 + i), text);
 		}
+
+		Rect!size_t townInfo = Rect!size_t(screenSize.x - 51, 4, 50, 20);
+
+		screen.FillRect(townInfo, ' ', Colour.White, Colour.Black);
+		screen.DrawBox(townInfo, Colour.White, Colour.Black);
+
+		string[] townInfoLines = [
+			format("Buildings: %d", thisTown.houses + thisTown.churches),
+			format("Houses: %d", thisTown.houses),
+			format("Churches: %d", thisTown.churches)
+		];
+
+		screen.WriteStringLines(
+			Vec2!size_t(townInfo.x + 1, townInfo.y + 1), townInfoLines
+		);
 	}
 }
