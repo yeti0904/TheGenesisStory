@@ -8,6 +8,7 @@ import textScreen;
 import townViewer;
 import worldViewer;
 import personViewer;
+import infoViewer;
 
 enum Focus {
 	World,
@@ -15,7 +16,8 @@ enum Focus {
 	Towns,
 	WorldInfo,
 	People,
-	QuitConfirm
+	QuitConfirm,
+	InfoView
 }
 
 struct TopMenu {
@@ -32,17 +34,20 @@ class Game {
 	TownViewer   townViewer;
 	WorldViewer  worldViewer;
 	PersonViewer personViewer;
+	InfoViewer   infoViewer;
 
 	this() {
 		topMenu.buttons = [
 			"World",
 			"Towns",
-			"People"
+			"People",
+			"Info"
 		];
 
 		townViewer   = new TownViewer();
 		worldViewer  = new WorldViewer();
 		personViewer = new PersonViewer();
+		infoViewer   = new InfoViewer();
 
 		focus = Focus.World;
 	}
@@ -117,6 +122,11 @@ class Game {
 								focus = Focus.People;
 								break;
 							}
+							case "Info": {
+								focus = Focus.InfoView;
+								infoViewer.Reset();
+								break;
+							}
 							default: assert(0);
 						}
 						break;
@@ -153,6 +163,10 @@ class Game {
 				}
 				break;
 			}
+			case Focus.InfoView: {
+				infoViewer.HandleKeyPress(key);
+				break;
+			}
 			default: assert(0);
 		}
 	}
@@ -176,6 +190,10 @@ class Game {
 				if (keyState[SDL_SCANCODE_D]) {
 					++ camera.x;
 				}
+				break;
+			}
+			case Focus.InfoView: {
+				infoViewer.HandleInput(keyState);
 				break;
 			}
 			default: break;
@@ -258,6 +276,14 @@ class Game {
 				screen.WriteString(
 					Vec2!size_t(box.x + 1, box.y + 1), "Really quit? (Y/N)"
 				);
+				break;
+			}
+			case Focus.InfoView: {
+				screen.WriteString(
+					Vec2!size_t(1, 1),
+					format("Viewing tile %s", infoViewer.cursor)
+				);
+				infoViewer.Render();
 				break;
 			}
 			default: assert(0);

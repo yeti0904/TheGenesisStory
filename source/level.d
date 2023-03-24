@@ -150,6 +150,10 @@ class Level {
 		return Vec2!size_t(tiles[0].length, tiles.length);
 	}
 
+	Tile GetTile(Vec2!size_t pos) {
+		return tiles[pos.y][pos.x];
+	}
+
 	Vec2!size_t[] GetSurroundingTiles(Vec2!size_t pos) {
 		Vec2!size_t[] ret;
 	
@@ -337,7 +341,7 @@ class Level {
 
 		for (
 			size_t y = offset.y;
-			(y - offset.y < screen.cells.length) && (y < tiles.length);
+			(y - offset.y < screen.cells.length - 3) && (y < tiles.length);
 			++ y
 		) {
 			for (
@@ -384,7 +388,7 @@ class Level {
 					default: assert(0);
 				}
 
-				screen.SetCell(Vec2!size_t(x - offset.x, y - offset.y), cell);
+				screen.SetCell(Vec2!size_t(x - offset.x, (y - offset.y) + 3), cell);
 			}
 		}
 	}

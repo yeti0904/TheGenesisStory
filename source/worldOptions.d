@@ -14,11 +14,11 @@ class WorldOptionsMenu {
 	const size_t menuLevels = 2;
 
 	this() {
-		
+		Reset();
 	}
 
 	void Reset() {
-		selectedBelieverLevel = 0;
+		selectedBelieverLevel = 3;
 		menuLevel             = 0;
 	}
 

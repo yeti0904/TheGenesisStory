@@ -170,7 +170,12 @@ class TextScreen {
 	}
 
 	void SetCell(Vec2!size_t pos, Cell cell) {
-		cells[pos.y][pos.x] = cell;
+		try {
+			cells[pos.y][pos.x] = cell;
+		}
+		catch (Throwable) {
+			
+		}
 	}
 
 	void Clear(char ch, ubyte fg = Colour.White, ubyte bg = Colour.Black) {
