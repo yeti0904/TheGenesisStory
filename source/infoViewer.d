@@ -120,7 +120,14 @@ class InfoViewer {
 				break;
 			}
 			case TileType.Church: {
-				lines ~= format("Priest: %s", tile.meta.church.priest.name.join(" "));
+				auto priest = tile.meta.church.priest;
+
+				if (priest is null) {
+					lines ~= format("Priest: %s", priest.name.join(" "));
+				}
+				else {
+					lines ~= "No priest";
+				}
 				break;
 			}
 			default: break;

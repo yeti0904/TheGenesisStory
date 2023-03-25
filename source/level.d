@@ -59,8 +59,10 @@ struct Person {
 	int        religion;
 	PersonRole role;
 	Tile*      home;
+	int        age; // days
+	bool       plagued;
 
-	static Person Random(int preligion, PersonRole prole, Tile* phome) {
+	static Person Random(int preligion, PersonRole prole, Tile* phome, int page = 0) {
 		Person ret;
 	
 		ret.name = [
@@ -70,6 +72,8 @@ struct Person {
 		ret.religion = preligion;
 		ret.role     = prole;
 		ret.home     = phome;
+		ret.age      = page;
+		ret.plagued  = false;
 
 		return ret;
 	}
@@ -137,6 +141,7 @@ class Level {
 	Town[]   towns;
 	Lake[]   lakes;
 	Person[] people;
+	Tile*[]  buildings;
 
 	this() {
 		
@@ -152,6 +157,29 @@ class Level {
 
 	Tile GetTile(Vec2!size_t pos) {
 		return tiles[pos.y][pos.x];
+	}
+
+	void RemoveReferences(Person* person) {
+		foreach (ref building ; buildings) {
+			switch (building.type) {
+				case TileType.House: {
+					foreach (ref resident ; building.meta.house.residents) {
+						if (resident == person) {
+							resident = null;
+							break;
+						}
+					}
+					break;
+				}
+				case TileType.Church: {
+					if (building.meta.church.priest == person) {
+						building.meta.church.priest = null;
+					}
+					break;
+				}
+				default: assert(0);
+			}
+		}
 	}
 
 	Vec2!size_t[] GetSurroundingTiles(Vec2!size_t pos) {
@@ -292,7 +320,8 @@ class Level {
 									people ~= Person.Random(
 										DefaultReligion.Believer,
 										PersonRole.Priest,
-										&tiles[y][x]
+										&tiles[y][x],
+										uniform(18, 60) * 360
 									);
 									
 									church.parent   = &town;
@@ -320,7 +349,8 @@ class Level {
 										people ~= Person.Random(
 											religion,
 											PersonRole.Normal,
-											&tiles[y][x]
+											&tiles[y][x],
+											uniform(18, 60) * 360
 										);
 
 										house.residents ~= &people[$ - 1];
@@ -328,6 +358,8 @@ class Level {
 									break;
 								}
 							}
+
+							buildings ~= &tiles[y][x];
 							break;
 						}
 					}

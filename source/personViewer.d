@@ -86,6 +86,7 @@ class PersonViewer {
 
 		lines = [
 			format("Name: %s", person.name.join(" ")),
+			format("Age: %d years and %d months", person.age / 360, person.age % 360 / 30),
 			format("Religion: %s", cast(DefaultReligion) person.religion),
 			format("Role: %s", person.role)
 		];
@@ -100,6 +101,10 @@ class PersonViewer {
 				break;
 			}
 			default: break;
+		}
+
+		if (person.plagued) {
+			lines ~= "Currently ill with the plague";
 		}
 
 		screen.WriteStringLines(Vec2!size_t(infoBox.x + 1, infoBox.y + 1), lines);

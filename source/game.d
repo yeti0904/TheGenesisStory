@@ -4,11 +4,12 @@ import bindbc.sdl;
 import app;
 import level;
 import types;
+import infoViewer;
 import textScreen;
 import townViewer;
 import worldViewer;
 import personViewer;
-import infoViewer;
+import eventManager;
 
 enum Focus {
 	World,
@@ -26,9 +27,12 @@ struct TopMenu {
 }
 
 class Game {
-	Level     level;
-	Vec2!long camera;
-	Focus     focus;
+	Level        level;
+	Vec2!long    camera;
+	Focus        focus;
+	string[]     eventLog;
+	EventManager eventManager;
+	bool         newEvents;
 
 	TopMenu      topMenu;
 	TownViewer   townViewer;
@@ -43,6 +47,8 @@ class Game {
 			"People",
 			"Info"
 		];
+
+		eventManager = new EventManager();
 
 		townViewer   = new TownViewer();
 		worldViewer  = new WorldViewer();
@@ -60,6 +66,10 @@ class Game {
 		}
 
 		return game;
+	}
+
+	void Report(string report) {
+		eventLog ~= report;
 	}
 
 	void GenerateWorld(int believerChance) {
@@ -198,6 +208,10 @@ class Game {
 			}
 			default: break;
 		}
+	}
+
+	void Update() {
+		eventManager.DoUpdate();
 	}
 
 	void Render() {
