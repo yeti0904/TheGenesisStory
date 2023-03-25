@@ -45,7 +45,8 @@ enum TileType {
 
 enum DefaultReligion {
 	Atheist  = 0,
-	Believer = 1
+	Believer = 1,
+	Other
 }
 
 enum PersonRole {
@@ -59,10 +60,12 @@ struct Person {
 	int        religion;
 	PersonRole role;
 	Tile*      home;
-	int        age; // days
+	int        birthday; // in days
 	bool       plagued;
 
-	static Person Random(int preligion, PersonRole prole, Tile* phome, int page = 0) {
+	static Person Random(
+		int preligion, PersonRole prole, Tile* phome, int pbirthday = 0
+	) {
 		Person ret;
 	
 		ret.name = [
@@ -72,7 +75,7 @@ struct Person {
 		ret.religion = preligion;
 		ret.role     = prole;
 		ret.home     = phome;
-		ret.age      = page;
+		ret.birthday = pbirthday;
 		ret.plagued  = false;
 
 		return ret;
@@ -142,6 +145,7 @@ class Level {
 	Lake[]   lakes;
 	Person[] people;
 	Tile*[]  buildings;
+	int      date; // days
 
 	this() {
 		
@@ -215,6 +219,8 @@ class Level {
 	}
 
 	void Generate(int believerChance) {
+		date = 100 * 360;
+	
 		for (size_t i = 0; i < 5; ++i) {
 			lakes ~= Lake(
 				Vec2!size_t(
@@ -321,7 +327,7 @@ class Level {
 										DefaultReligion.Believer,
 										PersonRole.Priest,
 										&tiles[y][x],
-										uniform(18, 60) * 360
+										uniform(40, 82) * 360
 									);
 									
 									church.parent   = &town;
@@ -350,7 +356,7 @@ class Level {
 											religion,
 											PersonRole.Normal,
 											&tiles[y][x],
-											uniform(18, 60) * 360
+											uniform(40, 82) * 360
 										);
 
 										house.residents ~= &people[$ - 1];

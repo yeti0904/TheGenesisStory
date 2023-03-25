@@ -15,7 +15,7 @@ class EventManager {
 	void ReportDeath(string name, string cause, int age) {
 		Game.Instance().Report(
 			format(
-				"%s has passed away from %s at the age of %d", name, cause, age
+				"%s has passed away from %s at the age of %d", name, cause, age / 360
 			)
 		);
 	}
@@ -29,10 +29,10 @@ class EventManager {
 
 		auto person = &world.people[personIt];
 
-		++ person.age;
+		int age = world.date - person.birthday;
 
-		if (person.age / 360 >= uniform(75, 120)) {
-			ReportDeath(person.name.join(" "), "old age", person.age);
+		if (age / 360 >= uniform(75, 120)) {
+			ReportDeath(person.name.join(" "), "old age", age);
 
 			world.RemoveReferences(person);
 		
@@ -48,7 +48,7 @@ class EventManager {
 					ReportSurvival(person.name.join(" "), "plague");
 				}
 				else {
-					ReportDeath(person.name.join(" "), "plague", person.age);
+					ReportDeath(person.name.join(" "), "plague", age);
 					
 					world.RemoveReferences(person);
 					world.people = world.people.remove(personIt);

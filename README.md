@@ -10,6 +10,7 @@ Inspired by [rooshk](https://github.com/cmspeedrunner/rooshk)
 <img src="/screenshots/town.png">
 <img src="/screenshots/people.png">
 <img src="/screenshots/house.png">
+<img src="/screenshots/action.png">
 
 ## Build
 ```

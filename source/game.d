@@ -7,9 +7,11 @@ import types;
 import infoViewer;
 import textScreen;
 import townViewer;
+import eventViewer;
 import worldViewer;
 import personViewer;
 import eventManager;
+import actionMenu;
 
 enum Focus {
 	World,
@@ -18,7 +20,9 @@ enum Focus {
 	WorldInfo,
 	People,
 	QuitConfirm,
-	InfoView
+	InfoView,
+	Events,
+	Actions
 }
 
 struct TopMenu {
@@ -26,11 +30,16 @@ struct TopMenu {
 	string[] buttons;
 }
 
+struct Event {
+	int    date;
+	string message;
+}
+
 class Game {
 	Level        level;
 	Vec2!long    camera;
 	Focus        focus;
-	string[]     eventLog;
+	Event[]      eventLog;
 	EventManager eventManager;
 	bool         newEvents;
 
@@ -39,13 +48,17 @@ class Game {
 	WorldViewer  worldViewer;
 	PersonViewer personViewer;
 	InfoViewer   infoViewer;
+	EventViewer  eventViewer;
+	ActionMenu   actionMenu;
 
 	this() {
 		topMenu.buttons = [
 			"World",
 			"Towns",
 			"People",
-			"Info"
+			"Info",
+			"Events",
+			"Action"
 		];
 
 		eventManager = new EventManager();
@@ -54,6 +67,8 @@ class Game {
 		worldViewer  = new WorldViewer();
 		personViewer = new PersonViewer();
 		infoViewer   = new InfoViewer();
+		eventViewer  = new EventViewer();
+		actionMenu   = new ActionMenu();
 
 		focus = Focus.World;
 	}
@@ -69,7 +84,7 @@ class Game {
 	}
 
 	void Report(string report) {
-		eventLog ~= report;
+		eventLog ~= Event(level.date, report);
 	}
 
 	void GenerateWorld(int believerChance) {
@@ -137,6 +152,14 @@ class Game {
 								infoViewer.Reset();
 								break;
 							}
+							case "Events": {
+								focus = Focus.Events;
+								break;
+							}
+							case "Action": {
+								focus = Focus.Actions;
+								break;
+							}
 							default: assert(0);
 						}
 						break;
@@ -177,6 +200,14 @@ class Game {
 				infoViewer.HandleKeyPress(key);
 				break;
 			}
+			case Focus.Events: {
+				eventViewer.HandleKeyPress(key);
+				break;
+			}
+			case Focus.Actions: {
+				actionMenu.HandleKeyPress(key);
+				break;
+			}
 			default: assert(0);
 		}
 	}
@@ -211,6 +242,12 @@ class Game {
 	}
 
 	void Update() {
+		auto app = App.Instance();
+
+		if (app.ticks % (60 * 60) == 0) {
+			++ level.date; // new day
+		}
+	
 		eventManager.DoUpdate();
 	}
 
@@ -229,7 +266,15 @@ class Game {
 
 		switch (focus) {
 			case Focus.World: {
-				screen.WriteString(Vec2!size_t(1, 1), "\2");
+				screen.WriteString(
+					Vec2!size_t(1, 1),
+					format(
+						"\2 | Year %d, Month %d, Day %d",
+						level.date / 360,
+						level.date % 360 / 30,
+						level.date % 360 % 30
+					)
+				);
 				break;
 			}
 			case Focus.TopMenu: {
@@ -298,6 +343,16 @@ class Game {
 					format("Viewing tile %s", infoViewer.cursor)
 				);
 				infoViewer.Render();
+				break;
+			}
+			case Focus.Events: {
+				screen.WriteString(Vec2!size_t(1, 1), "Viewing events");
+				eventViewer.Render();
+				break;
+			}
+			case Focus.Actions: {
+				screen.WriteString(Vec2!size_t(1, 1), "Available actions");
+				actionMenu.Render();
 				break;
 			}
 			default: assert(0);

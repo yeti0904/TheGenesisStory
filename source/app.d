@@ -56,6 +56,10 @@ class App {
 		auto game      = Game.Instance();
 	
 		++ ticks;
+
+		if (state == AppState.InGame) {
+			game.Update();
+		}
 	
 		SDL_Event e;
 

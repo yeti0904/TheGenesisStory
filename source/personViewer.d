@@ -84,9 +84,11 @@ class PersonViewer {
 
 		auto person = (*people)[selected];
 
+		int age = world.date - person.birthday;
+
 		lines = [
 			format("Name: %s", person.name.join(" ")),
-			format("Age: %d years and %d months", person.age / 360, person.age % 360 / 30),
+			format("Age: %d years and %d months", age / 360, age % 360 / 30),
 			format("Religion: %s", cast(DefaultReligion) person.religion),
 			format("Role: %s", person.role)
 		];
