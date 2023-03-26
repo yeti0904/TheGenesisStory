@@ -38,10 +38,11 @@ class InfoViewer {
 
 	void HandleInput(const ubyte* keyState) {
 		auto game   = Game.Instance();
+		auto world  = game.level;
 		auto screen = App.Instance().screen;
 	
 		if (keyState[SDL_SCANCODE_W]) {
-			if (cursor.y != 0) {
+			if (cursor.y > 0) {
 				-- cursor.y;
 
 				-- game.camera.y;
@@ -49,14 +50,16 @@ class InfoViewer {
 			}
 		}
 		if (keyState[SDL_SCANCODE_S]) {
-			++ cursor.y;
+			if (cursor.y < world.GetSize().y - 1) {
+				++ cursor.y;
 
-			if (cursor.y >= screen.GetSize().y / 2) {
-				++ game.camera.y;
+				if (cursor.y >= screen.GetSize().y / 2) {
+					++ game.camera.y;
+				}
 			}
 		}
 		if (keyState[SDL_SCANCODE_A]) {
-			if (cursor.x != 0) {
+			if (cursor.x > 0) {
 				-- cursor.x;
 
 				-- game.camera.x;
@@ -64,10 +67,12 @@ class InfoViewer {
 			}
 		}
 		if (keyState[SDL_SCANCODE_D]) {
-			++ cursor.x;
+			if (cursor.x < world.GetSize().x - 1) {
+				++ cursor.x;
 
-			if (cursor.x >= screen.GetSize().x / 2) {
-				++ game.camera.x;
+				if (cursor.x >= screen.GetSize().x / 2) {
+					++ game.camera.x;
+				}
 			}
 		}
 	}

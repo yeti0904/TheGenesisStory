@@ -80,6 +80,20 @@ struct Person {
 
 		return ret;
 	}
+
+	string Religion() {
+		switch (religion) {
+			case DefaultReligion.Believer: {
+				return "believer";
+			}
+			case DefaultReligion.Atheist: {
+				return "atheist";
+			}
+			default: {
+				return "heretic";
+			}
+		}
+	}
 }
 
 struct House {

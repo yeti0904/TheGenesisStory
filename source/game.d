@@ -84,7 +84,8 @@ class Game {
 	}
 
 	void Report(string report) {
-		eventLog ~= Event(level.date, report);
+		eventLog  ~= Event(level.date, report);
+		newEvents  = true;
 	}
 
 	void GenerateWorld(int believerChance) {
@@ -154,6 +155,7 @@ class Game {
 							}
 							case "Events": {
 								focus = Focus.Events;
+								newEvents = false;
 								break;
 							}
 							case "Action": {
@@ -266,15 +268,18 @@ class Game {
 
 		switch (focus) {
 			case Focus.World: {
-				screen.WriteString(
-					Vec2!size_t(1, 1),
-					format(
-						"\2 | Year %d, Month %d, Day %d",
-						level.date / 360,
-						level.date % 360 / 30,
-						level.date % 360 % 30
-					)
+				string bar = format(
+					"\2 | Year %d, Month %d, Day %d",
+					level.date / 360,
+					level.date % 360 / 30,
+					level.date % 360 % 30
 				);
+
+				if (newEvents) {
+					bar ~= "| New events";
+				}
+				
+				screen.WriteString(Vec2!size_t(1, 1), bar);
 				break;
 			}
 			case Focus.TopMenu: {
