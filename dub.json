@@ -11,7 +11,7 @@
 		"bindbc-sdl": ">1.2.4"
 	},
 	"versions": [
-		"SDL_TTF"
+		"SDL_TTF_2012"
 	],
 	"dflags": [
 		"-J."
