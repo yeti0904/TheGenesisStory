@@ -62,6 +62,8 @@ struct Person {
 	Tile*      home;
 	int        birthday; // in days
 	bool       plagued;
+	Person*    so; // significant other
+	bool       married;
 
 	static Person Random(
 		int preligion, PersonRole prole, Tile* phome, int pbirthday = 0
@@ -77,6 +79,8 @@ struct Person {
 		ret.home     = phome;
 		ret.birthday = pbirthday;
 		ret.plagued  = false;
+		ret.so       = null;
+		ret.married  = false;
 
 		return ret;
 	}

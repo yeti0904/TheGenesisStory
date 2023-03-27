@@ -70,7 +70,8 @@ class TitleScreen {
 	}
 
 	void Render() {
-		auto screen     = App.Instance().screen;
+		auto app        = App.Instance();
+		auto screen     = app.screen;
 		auto screenSize = screen.GetSize();
 
 		screen.Clear(' ');
@@ -157,6 +158,10 @@ class TitleScreen {
 		);
 		screen.WriteStringLinesCentered(
 			screenSize.y - controlsLines.length - 5, controlsLines
+		);
+
+		screen.WriteString(
+			Vec2!size_t(4, screenSize.y - 5), app.appVersion, Colour.BrightCyan
 		);
 	}
 }

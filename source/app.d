@@ -23,6 +23,7 @@ class App {
 	TextScreen screen;
 	AppState   state;
 	float      fps;
+	string     appVersion = "Beta 1.0.0";
 
 	// screens
 	TitleScreen      titleScreen;

@@ -4,14 +4,15 @@ import bindbc.sdl;
 import app;
 import level;
 import types;
-import infoViewer;
-import textScreen;
-import townViewer;
-import eventViewer;
-import worldViewer;
-import personViewer;
 import eventManager;
-import actionMenu;
+import textScreen;
+
+static import infoViewer;
+static import townViewer;
+static import eventViewer;
+static import worldViewer;
+static import personViewer;
+static import actionMenu;
 
 enum Focus {
 	World,
@@ -22,7 +23,9 @@ enum Focus {
 	QuitConfirm,
 	InfoView,
 	Events,
-	Actions
+	Actions,
+
+	Count
 }
 
 struct TopMenu {
@@ -35,6 +38,13 @@ struct Event {
 	string message;
 }
 
+struct Menu {
+	void function()             reset;
+	void function(SDL_Scancode) handleKeyPress;
+	void function(const ubyte*) handleInput;
+	void function()             render;
+}
+
 class Game {
 	Level        level;
 	Vec2!long    camera;
@@ -44,12 +54,8 @@ class Game {
 	bool         newEvents;
 
 	TopMenu      topMenu;
-	TownViewer   townViewer;
-	WorldViewer  worldViewer;
-	PersonViewer personViewer;
-	InfoViewer   infoViewer;
-	EventViewer  eventViewer;
-	ActionMenu   actionMenu;
+
+	Menu[Focus.Count] menus;
 
 	this() {
 		topMenu.buttons = [
@@ -63,12 +69,12 @@ class Game {
 
 		eventManager = new EventManager();
 
-		townViewer   = new TownViewer();
-		worldViewer  = new WorldViewer();
-		personViewer = new PersonViewer();
-		infoViewer   = new InfoViewer();
-		eventViewer  = new EventViewer();
-		actionMenu   = new ActionMenu();
+		menus[Focus.Towns]     = townViewer.CreateMenu();
+		menus[Focus.WorldInfo] = worldViewer.CreateMenu();
+		menus[Focus.People]    = personViewer.CreateMenu();
+		menus[Focus.InfoView]  = infoViewer.CreateMenu();
+		menus[Focus.Events]    = eventViewer.CreateMenu();
+		menus[Focus.Actions]   = actionMenu.CreateMenu();
 
 		focus = Focus.World;
 	}
@@ -133,53 +139,36 @@ class Game {
 						break;
 					}
 					case SDL_SCANCODE_SPACE: {
-						switch (topMenu.buttons[topMenu.selected]) {
-							case "World": {
-								focus = Focus.WorldInfo;
+						Focus[string] actions = [
+							"World": Focus.WorldInfo,
+							"Towns": Focus.Towns,
+							"People": Focus.People,
+							"Info":   Focus.InfoView,
+							"Events": Focus.Events,
+							"Action": Focus.Actions
+						];
+
+						focus = actions[topMenu.buttons[topMenu.selected]];
+					
+						switch (focus) {
+							case Focus.WorldInfo: {
 								worldViewer.CreateData();
 								break;
 							}
-							case "Towns": {
-								focus = Focus.Towns;
+							case Focus.Towns: {
 								townViewer.ViewOnTown();
 								break;
 							}
-							case "People": {
-								focus = Focus.People;
-								break;
-							}
-							case "Info": {
-								focus = Focus.InfoView;
-								infoViewer.Reset();
-								break;
-							}
-							case "Events": {
-								focus = Focus.Events;
+							case Focus.Events: {
 								newEvents = false;
 								break;
 							}
-							case "Action": {
-								focus = Focus.Actions;
-								break;
-							}
-							default: assert(0);
+							default: break;
 						}
 						break;
 					}
 					default: break;
 				}
-				break;
-			}
-			case Focus.Towns: {
-				townViewer.HandleKeyPress(key);
-				break;
-			}
-			case Focus.WorldInfo: {
-				worldViewer.HandleKeyPress(key);
-				break;
-			}
-			case Focus.People: {
-				personViewer.HandleKeyPress(key);
 				break;
 			}
 			case Focus.QuitConfirm: {
@@ -198,19 +187,11 @@ class Game {
 				}
 				break;
 			}
-			case Focus.InfoView: {
-				infoViewer.HandleKeyPress(key);
-				break;
+			default: {
+				if (menus[focus].handleKeyPress) {
+					menus[focus].handleKeyPress(key);
+				}
 			}
-			case Focus.Events: {
-				eventViewer.HandleKeyPress(key);
-				break;
-			}
-			case Focus.Actions: {
-				actionMenu.HandleKeyPress(key);
-				break;
-			}
-			default: assert(0);
 		}
 	}
 
@@ -235,11 +216,11 @@ class Game {
 				}
 				break;
 			}
-			case Focus.InfoView: {
-				infoViewer.HandleInput(keyState);
-				break;
+			default: {
+				if (menus[focus].handleInput) {
+					menus[focus].handleInput(keyState);
+				}
 			}
-			default: break;
 		}
 	}
 
@@ -303,31 +284,6 @@ class Game {
 				}
 				break;
 			}
-			case Focus.Towns: {
-				screen.WriteString(
-					Vec2!size_t(1, 1),
-					format(
-						"Looking at town %s at %s",
-						townViewer.towns[townViewer.selected].name,
-						townViewer.towns[townViewer.selected].pos
-					)
-				);
-
-				townViewer.Render();
-				break;
-			}
-			case Focus.WorldInfo: {
-				screen.WriteString(Vec2!size_t(1, 1), "Viewing world information");
-
-				worldViewer.Render();
-				break;
-			}
-			case Focus.People: {
-				screen.WriteString(Vec2!size_t(1, 1), "Viewing population");
-			
-				personViewer.Render();
-				break;
-			}
 			case Focus.QuitConfirm: {
 				Rect!size_t box = Rect!size_t(0, 0, 30, 5);
 
@@ -342,25 +298,11 @@ class Game {
 				);
 				break;
 			}
-			case Focus.InfoView: {
-				screen.WriteString(
-					Vec2!size_t(1, 1),
-					format("Viewing tile %s", infoViewer.cursor)
-				);
-				infoViewer.Render();
-				break;
+			default: {
+				if (menus[focus].render) {
+					menus[focus].render();
+				}
 			}
-			case Focus.Events: {
-				screen.WriteString(Vec2!size_t(1, 1), "Viewing events");
-				eventViewer.Render();
-				break;
-			}
-			case Focus.Actions: {
-				screen.WriteString(Vec2!size_t(1, 1), "Available actions");
-				actionMenu.Render();
-				break;
-			}
-			default: assert(0);
 		}
 	}
 }

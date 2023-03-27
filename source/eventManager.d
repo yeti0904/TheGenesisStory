@@ -1,9 +1,12 @@
+import std.math;
 import std.array;
 import std.format;
 import std.random;
 import std.algorithm;
 import game;
 import level;
+
+static import worldViewer;
 
 class EventManager {
 	size_t personIt;
@@ -18,6 +21,7 @@ class EventManager {
 				"%s has passed away from %s at the age of %d", name, cause, age / 360
 			)
 		);
+		worldViewer.CreateData();
 	}
 
 	void ReportSurvival(string name, string disease) {
@@ -27,7 +31,17 @@ class EventManager {
 	void ReportConversion(string name, string from, string to) {
 		auto game = Game.Instance();
 		game.Report(format("%s has converted to %s from %s", name, from, to));
-		game.worldViewer.CreateData();
+		worldViewer.CreateData();
+	}
+
+	void ReportLove(string name, string other) {
+		Game.Instance().Report(
+			format("%s has started a relationship with %s", name, other)
+		);
+	}
+
+	void ReportMarriage(string name, string other) {
+		Game.Instance().Report(format("%s has married %s", name, other));
 	}
 
 	void UpdatePerson() {
@@ -44,6 +58,55 @@ class EventManager {
 		
 			world.people = world.people.remove(personIt);
 			return;
+		}
+
+		if (
+			(person.role != PersonRole.Priest) &&
+			(person.so is null) &&
+			(person.home.meta.house.residents.length > 1) //&&
+			/*(uniform(0, 100) == 25)*/
+		) {
+			auto    residents = person.home.meta.house.residents;
+			Person* so;
+
+			size_t attempts = 0;
+			while (so != person) {
+				so = residents[uniform(0, residents.length)];
+
+				if (so.name[$ - 1] == person.name[$ - 1]) {
+					// this is so families don't marry each other
+					// since this isn't alabama simulator
+					so = null;
+					goto next;
+				}
+
+				if (abs(so.birthday - person.birthday) >= (10 * 360)) {
+					// so there's no weird age gap
+					so = null;
+					goto next;
+				}
+
+				next:
+				++ attempts;
+				if (attempts >= 50) {
+					so = null;
+					break;
+				}
+			}
+
+			if (so !is null) {
+				person.so = so;
+				so.so     = person;
+
+				ReportLove(person.name.join(" "), so.name.join(" "));
+			}
+		}
+
+		if ((person.so !is null) && (uniform(0, 3000) == 25) && (!person.married)) {
+			ReportMarriage(person.name.join(" "), person.so.name.join(" "));
+
+			person.married    = true;
+			person.so.married = true;
 		}
 
 		if ((person.role != PersonRole.Priest) && (uniform(0, 1000) == 25)) {
