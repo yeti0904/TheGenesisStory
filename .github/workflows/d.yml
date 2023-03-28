@@ -29,7 +29,7 @@ jobs:
         unzip sdl2_ttf.zip
         mv SDL2_ttf.dll sdl2_ttf.dll
         
-    - if: contains(matrix.os, 'ubuntu'
+    - if: contains(matrix.os, 'ubuntu')
       name: Install SDL2 (Ubuntu)
       shell: bash
       run: |
