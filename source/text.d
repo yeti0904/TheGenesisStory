@@ -23,6 +23,9 @@ class TextComponents {
 
 		auto support = loadSDLTTF();
 		// TODO: check if it failed
+		version (Windows) {
+			loadSDLTTF(cast(char*) (dirName(thisExePath()) ~ "/sdl2_ttf.dll"));
+		}
 
 		if (TTF_Init() == -1) {
 			stderr.writefln(
