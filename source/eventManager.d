@@ -1,5 +1,6 @@
 import std.math;
 import std.array;
+import std.stdio;
 import std.format;
 import std.random;
 import std.algorithm;
@@ -63,14 +64,14 @@ class EventManager {
 		if (
 			(person.role != PersonRole.Priest) &&
 			(person.so is null) &&
-			(person.home.meta.house.residents.length > 1) //&&
-			/*(uniform(0, 100) == 25)*/
+			(person.home.meta.house.residents.length > 1) &&
+			(uniform(0, 100) == 25)
 		) {
 			auto    residents = person.home.meta.house.residents;
 			Person* so;
 
 			size_t attempts = 0;
-			while (so != person) {
+			while (true) {
 				so = residents[uniform(0, residents.length)];
 
 				if (so.name[$ - 1] == person.name[$ - 1]) {
@@ -84,6 +85,10 @@ class EventManager {
 					// so there's no weird age gap
 					so = null;
 					goto next;
+				}
+
+				if (so != person) {
+					break;
 				}
 
 				next:
@@ -102,14 +107,14 @@ class EventManager {
 			}
 		}
 
-		if ((person.so !is null) && (uniform(0, 3000) == 25) && (!person.married)) {
+		if ((person.so !is null) && (uniform(0, 500) == 25) && (!person.married)) {
 			ReportMarriage(person.name.join(" "), person.so.name.join(" "));
 
 			person.married    = true;
 			person.so.married = true;
 		}
 
-		if ((person.role != PersonRole.Priest) && (uniform(0, 1000) == 25)) {
+		if ((person.role != PersonRole.Priest) && (uniform(0, 300) == 25)) {
 			foreach (ref person2 ; person.home.meta.house.residents) {
 				if (person == person2) {
 					continue;

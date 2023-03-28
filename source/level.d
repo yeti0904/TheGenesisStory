@@ -345,7 +345,7 @@ class Level {
 										DefaultReligion.Believer,
 										PersonRole.Priest,
 										&tiles[y][x],
-										uniform(40, 82) * 360
+										uniform(70, 82) * 360
 									);
 									
 									church.parent   = &town;
@@ -374,7 +374,8 @@ class Level {
 											religion,
 											PersonRole.Normal,
 											&tiles[y][x],
-											uniform(40, 82) * 360
+											//uniform(70, 82) * 360
+											82 * 360
 										);
 
 										house.residents ~= &people[$ - 1];

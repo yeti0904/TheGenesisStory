@@ -23,7 +23,7 @@ class App {
 	TextScreen screen;
 	AppState   state;
 	float      fps;
-	string     appVersion = "Beta 1.0.0";
+	string     appVersion = "Beta 1.0.1";
 
 	// screens
 	TitleScreen      titleScreen;
@@ -127,6 +127,8 @@ class App {
 
 		int deltaTime = cast(int) stopwatch.peek.total!"msecs"();
 		fps = 1000 / deltaTime;
+		
+		Thread.sleep(dur!"msecs"(max((1000 / 60) - deltaTime, 0)));
 	}
 }
 
