@@ -18,7 +18,7 @@ jobs:
     - uses: actions/checkout@v3
     - uses: dlang-community/setup-dlang@v1
     
-    - if: contains(matrix.os, "windows")
+    - if: contains(matrix.os, 'windows')
       name: Install SDL2 (Windows)
       shell: bash
       run: |
@@ -29,7 +29,7 @@ jobs:
         unzip sdl2_ttf.zip
         mv SDL2_ttf.dll sdl2_ttf.dll
         
-    - if: contains(matrix.os, "ubuntu")
+    - if: contains(matrix.os, 'ubuntu'
       name: Install SDL2 (Ubuntu)
       shell: bash
       run: |
