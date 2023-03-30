@@ -108,10 +108,20 @@ void Render() {
 		}
 		default: break;
 	}
+	
+	if (person.so !is null) {
+		if (person.married) {
+			lines ~= format("Married to %s", person.so.name.join(" "));
+		}
+		else {
+			lines ~= format("Partner: %s", person.so.name.join(" "));
+		}
+	}
 
 	if (person.plagued) {
 		lines ~= "Currently ill with the plague";
 	}
+
 
 	screen.WriteStringLines(Vec2!size_t(infoBox.x + 1, infoBox.y + 1), lines);
 }

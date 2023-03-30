@@ -1,3 +1,4 @@
+import std.stdio;
 import std.random;
 import types;
 import textScreen;
@@ -362,6 +363,8 @@ class Level {
 									auto house   = &tiles[y][x].meta.house;
 									house.parent = &town;
 
+									int maxAge = 36000 - (uniform(28, 60) * 360);
+
 									for (size_t i = 0; i < uniform(0, 4); ++ i) {
 										int chance   = uniform!"[]"(0, 100);
 										int religion = DefaultReligion.Atheist;
@@ -375,10 +378,27 @@ class Level {
 											PersonRole.Normal,
 											&tiles[y][x],
 											//uniform(70, 82) * 360
-											82 * 360
+											uniform(maxAge, maxAge + 3600)
 										);
 
 										house.residents ~= &people[$ - 1];
+									}
+
+									if (house.residents.length >= 2) {
+										house.residents[0].so = house.residents[1];
+										house.residents[1].so = house.residents[0];
+
+										assert(
+											house.residents[0].so == house.residents[1]
+										);
+										assert(
+											house.residents[1].so == house.residents[0]
+										);
+
+										if (uniform!"[]"(0, 1) == 1) {
+											house.residents[0].married = true;
+											house.residents[1].married = true;
+										}
 									}
 									break;
 								}

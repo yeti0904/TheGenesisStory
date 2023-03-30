@@ -122,13 +122,15 @@ class WorldOptionsMenu {
 			);
 
 			foreach (i, ref level ; believerLevels) {
-				ubyte colour = Colour.Black;
+				ubyte fg = Colour.White;
+				ubyte bg = Colour.Black;
 
 				if (i == selectedBelieverLevel) {
-					colour = menuLevel == 0? Colour.Blue : Colour.Green;
+					fg = menuLevel == 0? Colour.Black : Colour.White;
+					bg = menuLevel == 0? Colour.White : Colour.Blue;
 				}
 
-				screen.WriteString(pos, level, Colour.White, colour);
+				screen.WriteString(pos, level, fg, bg);
 
 				pos.x += level.length + 1;
 			}
@@ -136,8 +138,9 @@ class WorldOptionsMenu {
 
 		// confirm button
 		{
-			ubyte colour = menuLevel == 1? Colour.Blue : Colour.Black;
-			screen.WriteStringCentered(6, "Confirm", Colour.White, colour);
+			ubyte fg = menuLevel == 1? Colour.Black : Colour.White;
+			ubyte bg = menuLevel == 1? Colour.White : Colour.Black;
+			screen.WriteStringCentered(6, "Confirm", fg, bg);
 		}
 	}
 }

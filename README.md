@@ -6,6 +6,7 @@ Inspired by [rooshk](https://github.com/cmspeedrunner/rooshk)
 ## Table of contents
 - [Screenshots](#screenshots)
 - [Build](#build)
+- [Known bugs](#known-bugs)
 
 ## Screenshots
 <img src="/screenshots/mainmenu.png">
@@ -21,3 +22,6 @@ The Genesis Story requires SDL2 and SDL2_ttf
 ```
 dub build
 ```
+
+## Known bugs
+- The people viewer may only show 1 person without a partner while someone else has them as a partner
