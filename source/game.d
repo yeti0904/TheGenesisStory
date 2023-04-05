@@ -149,6 +149,10 @@ class Game {
 						];
 
 						focus = actions[topMenu.buttons[topMenu.selected]];
+
+						if (menus[focus].reset) {
+							menus[focus].reset();
+						}
 					
 						switch (focus) {
 							case Focus.WorldInfo: {

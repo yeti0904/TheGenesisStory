@@ -288,7 +288,7 @@ class Level {
 				foreach (ref lake ; lakes) {
 					size_t distance = pos.DistanceTo(lake.pos.CastTo!long());
 				
-					if (distance <= uniform(5, 40)) {
+					if (distance <= uniform(20, 40)) {
 						tiles[y][x] = Tile(TileType.Water);
 						break;
 					}
